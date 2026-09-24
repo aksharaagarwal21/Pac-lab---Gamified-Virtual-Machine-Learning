@@ -1,0 +1,308 @@
+/* Byte, the monster voice assistant (shown on every page). Its position is set by JS physics. */
+
+.va {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 70;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.va-bubble {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
+  margin: 0;
+  padding: 12px 14px;
+  border: 2px solid #22d3ee;
+  background: #070b18;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.25), 4px 4px 0 #1f6bff;
+  color: #e2e8f0;
+  font: 600 14px/1.45 "Chakra Petch", system-ui, sans-serif;
+  animation: va-pop 0.2s ease-out both;
+}
+
+.va-bubble::after {
+  content: "";
+  position: absolute;
+  right: 24px;
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid #22d3ee;
+  border-bottom: 2px solid #22d3ee;
+  background: #070b18;
+  rotate: 45deg;
+}
+
+.va.is-left .va-bubble {
+  right: auto;
+  left: 0;
+}
+
+.va.is-left .va-bubble::after {
+  right: auto;
+  left: 24px;
+}
+
+.va.is-below .va-bubble {
+  top: calc(100% + 14px);
+  bottom: auto;
+}
+
+.va.is-below .va-bubble::after {
+  top: -8px;
+  bottom: auto;
+  rotate: 225deg;
+}
+
+.va-name {
+  display: block;
+  margin-bottom: 6px;
+  color: #f5c518;
+  font: 400 9px "Press Start 2P", monospace;
+  letter-spacing: 0.06em;
+}
+
+.va-button {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: scale 0.15s ease;
+}
+
+.va.is-rest .va-button:hover {
+  scale: 1.07;
+}
+
+.va.is-dragging .va-button {
+  cursor: grabbing;
+}
+
+.va-button:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.va-spin,
+.va-body {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.va-body {
+  transform-origin: 50% 100%;
+}
+
+.va-monster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.6));
+  animation: va-bob 3s ease-in-out infinite;
+}
+
+.va-eye,
+.va-spiral,
+.va-mouth {
+  transform-box: fill-box;
+}
+
+.va-eye {
+  transform-origin: center;
+  animation: va-blink 4.5s infinite;
+}
+
+.va-spiral {
+  display: none;
+  transform-origin: center;
+}
+
+.va-eyelid {
+  display: none;
+}
+
+.va-mouth {
+  transform-origin: center top;
+}
+
+.is-talking .va-mouth {
+  animation: va-talk 0.16s ease-in-out infinite alternate;
+}
+
+/* Asleep: voice switched off */
+.is-asleep .va-monster {
+  filter: grayscale(0.55) brightness(0.75);
+  animation: none;
+}
+
+.is-asleep .va-eye {
+  display: none;
+}
+
+.is-asleep .va-eyelid {
+  display: inline;
+}
+
+/* Carried or flying: wide eye, open mouth, wriggling */
+.is-dragging .va-monster,
+.is-flying .va-monster {
+  animation: va-wiggle 0.28s ease-in-out infinite alternate;
+}
+
+.is-dragging .va-eye,
+.is-flying .va-eye {
+  animation: none;
+  transform: scale(1.15);
+}
+
+.is-dragging .va-mouth,
+.is-flying .va-mouth {
+  animation: none;
+  transform: scaleY(1.8);
+}
+
+/* Dizzy after a hard landing: spiral eye and circling stars */
+.is-dizzy .va-eye,
+.is-dizzy .va-eyelid,
+.is-dizzy .va-zzz {
+  display: none;
+}
+
+.is-dizzy .va-spiral {
+  display: inline;
+  animation: va-spin 0.6s linear infinite;
+}
+
+.is-dizzy .va-monster {
+  animation: va-sway 0.9s ease-in-out infinite;
+}
+
+.va-stars {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  display: none;
+  width: 44px;
+  height: 44px;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.is-dizzy .va-stars {
+  display: block;
+  animation: va-spin 0.9s linear infinite;
+}
+
+.va-stars i {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: #f5c518;
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.va-stars i:nth-child(1) { top: 0; left: 16px; }
+.va-stars i:nth-child(2) { top: 26px; left: 0; }
+.va-stars i:nth-child(3) { top: 26px; right: 0; }
+
+/* Waking back up: a springy hop */
+.is-waking .va-monster {
+  animation: va-hop 0.65s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.va-zzz {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  color: #cbd5e1;
+  font: 400 11px "Press Start 2P", monospace;
+  animation: va-zzz 2s ease-in-out infinite;
+}
+
+@keyframes va-bob {
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes va-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes va-talk {
+  to { transform: scaleY(1.7); }
+}
+
+@keyframes va-wiggle {
+  from { transform: rotate(-6deg); }
+  to { transform: rotate(6deg); }
+}
+
+@keyframes va-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes va-sway {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes va-hop {
+  0% { transform: translateY(0) scale(1.1, 0.85); }
+  40% { transform: translateY(-18px) scale(0.92, 1.1); }
+  70% { transform: translateY(0) scale(1.08, 0.92); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes va-pop {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+}
+
+@keyframes va-zzz {
+  50% { opacity: 0.35; transform: translate(3px, -4px); }
+}
+
+@media (width < 640px) {
+  .va {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .va-monster,
+  .va-eye,
+  .va-zzz,
+  .va-bubble,
+  .is-dizzy .va-spiral,
+  .is-dizzy .va-stars,
+  .is-dizzy .va-monster,
+  .is-waking .va-monster,
+  .is-dragging .va-monster,
+  .is-flying .va-monster {
+    animation: none;
+  }
+
+  .is-talking .va-mouth {
+    animation: none;
+    transform: scaleY(1.4);
+  }
+}

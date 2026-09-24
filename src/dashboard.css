@@ -1,0 +1,867 @@
+/* Student dashboard, built on the arcade tokens and shapes from styles.css. */
+
+:root {
+  --arcade-soft: oklch(84% 0.03 275);
+  --block-off: oklch(30% 0.08 274);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Sprites: the intro's pac-man, ghost and pellet shapes without its positioning or timing. */
+.sprite {
+  position: relative;
+  top: auto;
+  translate: none;
+  animation: none;
+  flex: none;
+}
+
+.sprite-chomp {
+  animation: 0.16s steps(2, end) infinite pac-chomp;
+}
+
+.ghost-frightened {
+  background: var(--arcade-blue);
+}
+
+.ghost-frightened .ghost-eye,
+.ghost-frightened .ghost-eye > span {
+  background: var(--arcade-pink);
+}
+
+.star-shape {
+  aspect-ratio: 1;
+  width: 0.75rem;
+  background: var(--arcade-dim);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  display: inline-block;
+}
+
+.star-shape.is-lit {
+  background: var(--arcade-yellow);
+}
+
+.stars {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+/* Layout */
+.dash-stage {
+  width: min(78rem, 100%);
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem) 4vw clamp(2rem, 6vw, 3.5rem);
+  display: grid;
+  align-content: start;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.dash-row {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.dash-row-split {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+}
+
+.dash-row-thirds {
+  grid-template-columns: repeat(auto-fit, minmax(min(19rem, 100%), 1fr));
+}
+
+/* Panels */
+.dash-panel {
+  border: 3px solid var(--arcade-blue);
+  background: var(--arcade-ink);
+  box-shadow: 0.35rem 0.35rem 0 var(--arcade-blue);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  display: grid;
+  align-content: start;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .dash-panel {
+    background: color-mix(in srgb, var(--arcade-blue) 8%, var(--arcade-ink));
+  }
+}
+
+.dash-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 2px dashed var(--arcade-blue);
+}
+
+.dash-panel-title {
+  margin: 0;
+  color: var(--arcade-yellow);
+  text-shadow: 0.09em 0 var(--arcade-blue);
+  font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+  line-height: 1.4;
+}
+
+.dash-panel-meta,
+.dash-kicker,
+.stat-label {
+  color: var(--arcade-cyan);
+  font-size: clamp(0.42rem, 1vw, 0.56rem);
+  line-height: 1.8;
+}
+
+.dash-copy {
+  margin: 0;
+  color: var(--arcade-soft);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.arcade-button-sm {
+  justify-self: start;
+  min-height: 2.6rem;
+  padding: 0.75rem 1rem;
+  font-size: clamp(0.5rem, 1.1vw, 0.64rem);
+}
+
+.arcade-button:disabled,
+.arcade-button:disabled:hover {
+  cursor: default;
+  background: none;
+  color: var(--arcade-cyan);
+  border-color: var(--arcade-cyan);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Meters */
+.meter {
+  display: block;
+  height: 1.1rem;
+  padding: 2px;
+  border: 2px solid var(--arcade-cyan);
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  width: var(--fill);
+  background: repeating-linear-gradient(90deg, var(--arcade-yellow) 0 0.55rem, transparent 0.55rem 0.7rem);
+  animation: meter-grow 0.9s steps(10, end) both;
+}
+
+@keyframes meter-grow {
+  from { width: 0; }
+}
+
+.dash-meter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.meter-value {
+  color: var(--arcade-yellow);
+  font-size: clamp(0.45rem, 1vw, 0.56rem);
+}
+
+/* Player hero */
+.dash-hero {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.25rem);
+  border-color: var(--arcade-yellow);
+}
+
+.dash-avatar {
+  width: clamp(3.5rem, 8vw, 5.5rem);
+}
+
+.dash-hero-main {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.dash-kicker,
+.dash-rank {
+  margin: 0;
+}
+
+.dash-player {
+  margin: 0;
+  color: var(--arcade-yellow);
+  text-shadow: 0.1em 0 var(--arcade-blue);
+  font-size: clamp(1rem, 3.6vw, 2.1rem);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.dash-rank {
+  color: var(--arcade-pink);
+  font-size: clamp(0.5rem, 1.2vw, 0.7rem);
+  line-height: 1.8;
+}
+
+.dash-xp {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 36rem;
+}
+
+.dash-xp-labels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem 1rem;
+  color: var(--arcade-cyan);
+  font-size: clamp(0.4rem, 0.95vw, 0.52rem);
+  line-height: 1.8;
+}
+
+.dash-hero-side {
+  display: grid;
+  justify-items: end;
+  gap: 1rem;
+  text-align: right;
+}
+
+.dash-hero-side .arcade-button {
+  justify-self: end;
+}
+
+.dash-hiscore {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dash-hiscore-value {
+  color: var(--arcade-yellow);
+  font-size: clamp(1.1rem, 3vw, 1.9rem);
+  line-height: 1.2;
+}
+
+/* Stat tiles */
+.dash-stats {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.stat-tile {
+  border: 3px solid var(--arcade-blue);
+  box-shadow: 0.3rem 0.3rem 0 var(--arcade-blue);
+  padding: 1rem 1.15rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.stat-value {
+  color: var(--arcade-yellow);
+  text-shadow: 0.08em 0 var(--arcade-blue);
+  font-size: clamp(1rem, 2.6vw, 1.5rem);
+  line-height: 1.3;
+}
+
+.stat-sub {
+  color: var(--arcade-pink);
+  font-size: clamp(0.4rem, 0.9vw, 0.5rem);
+  line-height: 1.8;
+}
+
+/* The maze: level map */
+.maze-scroll {
+  overflow-x: auto;
+  margin-inline: -0.5rem;
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.maze-track {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(7.25rem, 1fr));
+  padding-top: 1.1rem;
+}
+
+.maze-stop {
+  position: relative;
+}
+
+/* Pellets still to eat ahead of the player; an empty lane behind. */
+.maze-stop:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: calc(0.6rem + 2px + 1.5rem);
+  left: calc(50% + 1.8rem);
+  right: calc(-50% + 1.8rem);
+  translate: 0 -50%;
+  border-top: 0.3rem dotted var(--primary-foreground);
+  pointer-events: none;
+}
+
+.maze-stop.is-cleared::after {
+  border-top: 2px solid var(--arcade-blue);
+}
+
+.maze-node {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.55rem;
+  padding: 0.6rem 0.35rem 0.8rem;
+  border: 2px solid transparent;
+  color: var(--arcade-cyan);
+  font-family: var(--font-pixel);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s steps(2, end);
+}
+
+.maze-node:hover,
+.maze-node:focus-visible {
+  border-color: var(--arcade-yellow);
+  outline: none;
+}
+
+.maze-icon {
+  position: relative;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+}
+
+.maze-pellet { width: 1.4rem; }
+.maze-pac { width: 2.6rem; }
+.maze-ghost { width: 2.2rem; }
+
+.is-current .maze-icon::before {
+  content: "YOU";
+  position: absolute;
+  top: -1.1rem;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--arcade-pink);
+  font-size: 0.42rem;
+  animation: 1.2s step-end infinite blink-status;
+}
+
+.maze-level {
+  color: var(--arcade-yellow);
+  font-size: clamp(0.5rem, 1.1vw, 0.62rem);
+}
+
+.maze-title {
+  font-size: 0.45rem;
+  line-height: 1.7;
+  min-height: 3.4em;
+}
+
+.maze-progress {
+  color: var(--arcade-pink);
+  font-size: 0.5rem;
+}
+
+.is-locked .maze-level,
+.is-locked .maze-title,
+.maze-locked {
+  color: var(--arcade-dim);
+}
+
+.maze-locked {
+  font-size: 0.45rem;
+}
+
+/* Mission + challenge */
+.mission-head {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mission-title {
+  margin: 0;
+  color: var(--arcade-yellow);
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  line-height: 1.4;
+}
+
+.objective-list {
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.objective-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  color: var(--arcade-soft);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.objective-box {
+  width: 0.9rem;
+  aspect-ratio: 1;
+  margin-top: 0.2rem;
+  border: 2px solid var(--arcade-cyan);
+}
+
+.objective-list li.is-done {
+  color: var(--arcade-dim);
+  text-decoration: line-through;
+}
+
+.is-done .objective-box {
+  background: var(--arcade-yellow);
+  border-color: var(--arcade-yellow);
+}
+
+.challenge-panel {
+  border-color: var(--arcade-pink);
+}
+
+.challenge-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  margin: 0;
+}
+
+.challenge-facts div {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.challenge-facts dt {
+  color: var(--arcade-cyan);
+  font-size: 0.45rem;
+}
+
+.challenge-facts dd {
+  margin: 0;
+}
+
+.challenge-reward {
+  color: var(--arcade-yellow);
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+}
+
+.difficulty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.1rem;
+}
+
+.difficulty span {
+  width: 0.7rem;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: var(--block-off);
+}
+
+.difficulty .is-lit {
+  background: var(--arcade-yellow);
+  box-shadow: 0 0 0.5rem var(--arcade-yellow);
+}
+
+/* Badges */
+.dash-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.dash-tab {
+  border: 2px solid var(--arcade-blue);
+  padding: 0.55rem 0.8rem;
+  color: var(--arcade-cyan);
+  font-family: var(--font-pixel);
+  font-size: clamp(0.42rem, 1vw, 0.52rem);
+  cursor: pointer;
+  transition: background-color 0.12s steps(2, end), color 0.12s steps(2, end), border-color 0.12s steps(2, end);
+}
+
+.dash-tab:hover,
+.dash-tab:focus-visible {
+  border-color: var(--arcade-yellow);
+  outline: none;
+}
+
+.dash-tab[aria-pressed="true"] {
+  background: var(--arcade-yellow);
+  border-color: var(--arcade-yellow);
+  color: var(--arcade-ink);
+}
+
+.badge-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(10.5rem, 100%), 1fr));
+  gap: clamp(0.9rem, 2vw, 1.25rem);
+}
+
+.badge-grid li {
+  display: grid;
+}
+
+.badge-tile {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.7rem;
+  padding: 1.1rem 0.8rem 1rem;
+  border: 3px solid var(--arcade-yellow);
+  box-shadow: 0.3rem 0.3rem 0 var(--arcade-blue);
+  color: var(--arcade-cyan);
+  font-family: var(--font-pixel);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.12s steps(2, end), box-shadow 0.12s steps(2, end), border-color 0.12s steps(2, end);
+}
+
+.badge-tile:hover,
+.badge-tile:focus-visible {
+  transform: translate(0.2rem, 0.2rem);
+  box-shadow: 0.1rem 0.1rem 0 var(--arcade-blue);
+  outline: none;
+}
+
+.badge-emblem {
+  width: 4.25rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--arcade-yellow);
+  border-radius: 999px;
+  background: var(--arcade-ink);
+  box-shadow: inset 0 0 0 4px var(--arcade-ink), inset 0 0 0 6px var(--arcade-blue);
+}
+
+.badge-sprite.pacman { width: 2.2rem; }
+.badge-sprite.ghost { width: 2rem; }
+.badge-sprite.pellet { width: 0.9rem; }
+.badge-sprite.badge-power { width: 1.7rem; }
+
+.badge-sprite.star-shape {
+  width: 2.2rem;
+  background: var(--arcade-yellow);
+}
+
+.badge-glyph {
+  color: var(--arcade-yellow);
+  text-shadow: 0.1em 0 var(--arcade-blue);
+  font-size: 0.8rem;
+}
+
+.badge-name {
+  color: var(--arcade-yellow);
+  font-size: clamp(0.5rem, 1.1vw, 0.6rem);
+  line-height: 1.6;
+}
+
+.badge-goal {
+  color: var(--arcade-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.badge-status {
+  color: var(--arcade-pink);
+  font-size: 0.42rem;
+  line-height: 1.8;
+}
+
+.badge-tile.is-locked {
+  border-style: dashed;
+  border-color: var(--arcade-dim);
+  box-shadow: none;
+}
+
+.badge-tile.is-locked:hover,
+.badge-tile.is-locked:focus-visible {
+  border-color: var(--arcade-cyan);
+  box-shadow: none;
+}
+
+.is-locked .badge-emblem {
+  border-color: var(--arcade-dim);
+}
+
+.is-locked .badge-emblem > * {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+.is-locked .badge-name,
+.is-locked .badge-status {
+  color: var(--arcade-dim);
+}
+
+/* Skills */
+.skill-list {
+  list-style: none;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.skill-row {
+  display: grid;
+  grid-template-columns: 6.2rem minmax(0, 1fr) 1.2rem;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--arcade-cyan);
+  font-size: 0.45rem;
+  line-height: 1.6;
+}
+
+.skill-blocks {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+}
+
+.skill-blocks span {
+  height: 0.8rem;
+  background: var(--block-off);
+}
+
+.skill-blocks .is-lit {
+  background: var(--arcade-yellow);
+  animation: block-light 10ms step-end both;
+  animation-delay: calc(var(--i) * 45ms + 0.3s);
+}
+
+@keyframes block-light {
+  from { background-color: var(--block-off); }
+}
+
+.skill-value {
+  color: var(--arcade-yellow);
+  text-align: right;
+}
+
+/* Recent runs */
+.run-log {
+  list-style: none;
+  display: grid;
+}
+
+.run-row {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  grid-template-areas:
+    "lvl name xp"
+    "lvl result when";
+  gap: 0.35rem 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 2px dotted var(--arcade-blue);
+}
+
+.run-row:first-child {
+  padding-top: 0;
+}
+
+.run-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.run-level {
+  grid-area: lvl;
+  align-self: center;
+  color: var(--arcade-pink);
+  font-size: 0.45rem;
+}
+
+.run-name {
+  grid-area: name;
+  color: var(--arcade-yellow);
+  font-size: 0.45rem;
+  line-height: 1.7;
+}
+
+.run-xp {
+  grid-area: xp;
+  color: var(--arcade-cyan);
+  font-size: 0.45rem;
+  text-align: right;
+}
+
+.run-result {
+  grid-area: result;
+  color: var(--arcade-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.run-when {
+  grid-area: when;
+  align-self: center;
+  color: var(--arcade-dim);
+  font-size: 0.4rem;
+  text-align: right;
+}
+
+/* High scores */
+.score-list {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.score-row {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 2px solid transparent;
+  color: var(--arcade-cyan);
+  font-size: 0.48rem;
+  line-height: 1.6;
+}
+
+.score-rank {
+  color: var(--arcade-pink);
+}
+
+.score-row:first-child .score-rank {
+  color: var(--arcade-yellow);
+}
+
+.score-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.score-points {
+  color: var(--arcade-yellow);
+}
+
+.score-row.is-you {
+  border-color: var(--arcade-yellow);
+}
+
+.score-you {
+  background: var(--arcade-yellow);
+  color: var(--arcade-ink);
+  padding: 0.15rem 0.35rem;
+  font-size: 0.4rem;
+}
+
+/* Toast */
+.dash-toast-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(4.5rem, 10vh, 6rem);
+  translate: -50% 0;
+  z-index: 20;
+  width: max-content;
+  max-width: 92vw;
+  pointer-events: none;
+}
+
+.dash-toast {
+  margin: 0;
+  border: 3px solid var(--arcade-pink);
+  background: var(--arcade-ink);
+  box-shadow: 0.3rem 0.3rem 0 var(--arcade-blue);
+  padding: 0.8rem 1rem;
+  color: var(--arcade-pink);
+  font-size: clamp(0.45rem, 1.1vw, 0.6rem);
+  line-height: 1.8;
+  text-align: center;
+  animation: toast-in 0.4s steps(4, end) both;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(0.75rem); }
+}
+
+@media (width <= 900px) {
+  .dash-row-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-hero {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dash-hero-side {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    text-align: left;
+  }
+}
+
+@media (width <= 640px) {
+  .dash-stage {
+    padding-inline: 1rem;
+  }
+
+  .dash-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-avatar {
+    width: 3rem;
+  }
+
+  .dash-stats,
+  .badge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .stat-tile {
+    padding: 0.85rem 0.75rem;
+  }
+
+  .badge-tile {
+    padding-inline: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sprite-chomp,
+  .meter-fill,
+  .skill-blocks .is-lit,
+  .dash-toast,
+  .is-current .maze-icon::before {
+    animation: none;
+  }
+
+  .badge-tile,
+  .dash-tab,
+  .maze-node {
+    transition: none;
+  }
+}

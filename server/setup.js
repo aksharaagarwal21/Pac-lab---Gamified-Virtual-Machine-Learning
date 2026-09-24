@@ -1,0 +1,50 @@
+// Creates the PAC-LAB database, its tables and a large sample dataset.
+// Usage: npm run db:setup   (reads the connection settings from .env)
+// Warning: this resets all data, including progress saved by students who signed in.
+
+import 'dotenv/config'
+import { readFile } from 'node:fs/promises'
+import mysql from 'mysql2/promise'
+import { DEMO_FACULTY, DEMO_FACULTY_PASSWORD, DEMO_STUDENTS, DEMO_STUDENT_PASSWORD, ensureAccounts } from './accounts.js'
+import { dbConfig } from './db.js'
+import { buildDataset } from './seed.js'
+
+const CHUNK = 2000
+
+if (!/^\w+$/.test(dbConfig.database)) {
+  console.error(`Invalid DB_NAME "${dbConfig.database}": use letters, digits and underscores only.`)
+  process.exit(1)
+}
+
+const started = Date.now()
+const { database, ...server } = dbConfig
+const connection = await mysql.createConnection({ ...server, multipleStatements: true })
+
+try {
+  await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`)
+  await connection.query(`USE \`${database}\``)
+  await connection.query(await readFile(new URL('./schema.sql', import.meta.url), 'utf8'))
+  console.log(`Created tables in "${database}".`)
+
+  const tables = buildDataset()
+  await connection.beginTransaction()
+  for (const { table, columns, rows } of tables) {
+    for (let i = 0; i < rows.length; i += CHUNK) {
+      await connection.query(`INSERT INTO \`${table}\` (${columns.map((c) => `\`${c}\``).join(', ')}) VALUES ?`, [rows.slice(i, i + CHUNK)])
+    }
+    console.log(`  ${table.padEnd(20)} ${rows.length.toLocaleString('en-IN').padStart(8)} rows`)
+  }
+  await connection.commit()
+  await ensureAccounts(connection)
+
+  const total = tables.reduce((sum, t) => sum + t.rows.length, 0)
+  console.log(`Inserted ${total.toLocaleString('en-IN')} rows in ${((Date.now() - started) / 1000).toFixed(1)}s.`)
+  console.log(`Faculty sign-in: ${DEMO_FACULTY.join(', ')} (or any FAC-ML-001 to FAC-ML-014) with password "${DEMO_FACULTY_PASSWORD}".`)
+  console.log(`Student sign-in: ${DEMO_STUDENTS.map((s) => s.id).join(', ')} with password "${DEMO_STUDENT_PASSWORD}".`)
+} catch (error) {
+  await connection.rollback().catch(() => {})
+  console.error('Database setup failed:', error.message)
+  process.exitCode = 1
+} finally {
+  await connection.end()
+}
