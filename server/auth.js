@@ -15,24 +15,49 @@ export function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(expected, actual)
 }
 
-// In-memory sessions for faculty and students: signing in again is needed after the API server restarts.
+// Signed session tokens: <payload>.<HMAC-SHA256>, where the payload holds the role, the user id and
+// an expiry time. Any server instance holding SESSION_SECRET can check a token, so sign-ins survive
+// restarts and work across Vercel's serverless instances.
 const SESSION_MS = 8 * 60 * 60 * 1000
-const sessions = new Map()
+
+function sessionSecret() {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET
+  if (process.env.VERCEL || process.env.NODE_ENV === 'production') throw new Error('SESSION_SECRET is not set.')
+  // Local development only: a per-process secret (everyone signs in again after a restart).
+  sessionSecret.dev ??= crypto.randomBytes(32).toString('hex')
+  return sessionSecret.dev
+}
+
+const sign = (payload) => crypto.createHmac('sha256', sessionSecret()).update(payload).digest('base64url')
+
+// Tokens signed out before they expire (per instance; the browser also forgets its token).
+const revoked = new Map()
 
 export function createSession(role, id) {
-  const token = crypto.randomBytes(32).toString('hex')
-  sessions.set(token, { role, id, expires: Date.now() + SESSION_MS })
-  return token
+  const payload = Buffer.from(JSON.stringify({ role, id, exp: Date.now() + SESSION_MS })).toString('base64url')
+  return `${payload}.${sign(payload)}`
 }
 
 export function readSession(token, role) {
-  const session = token && sessions.get(token)
-  if (!session || session.role !== role) return null
-  if (session.expires < Date.now()) {
-    sessions.delete(token)
+  if (typeof token !== 'string' || revoked.has(token)) return null
+  const [payload, signature] = token.split('.')
+  if (!payload || !signature) return null
+  const expected = Buffer.from(sign(payload))
+  const actual = Buffer.from(signature)
+  if (expected.length !== actual.length || !crypto.timingSafeEqual(expected, actual)) return null
+  let session
+  try {
+    session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
+  } catch {
     return null
   }
+  if (session.role !== role || !(session.exp > Date.now())) return null
   return session
 }
 
-export const endSession = (token) => sessions.delete(token)
+export function endSession(token) {
+  const session = readSession(token, 'student') ?? readSession(token, 'faculty')
+  if (!session) return
+  revoked.set(token, session.exp)
+  for (const [key, exp] of revoked) if (exp < Date.now()) revoked.delete(key)
+}

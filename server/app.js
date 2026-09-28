@@ -1,15 +1,13 @@
 // PAC-LAB API: student and faculty sign-in, saved student progress, and class, student and
-// leaderboard data from MySQL.
-// Usage: npm run server   (Vite proxies /api to this server during development)
+// leaderboard data from MySQL. The app is shared by the local server (server/index.js) and the
+// Vercel serverless function (api/index.js).
 
 import 'dotenv/config'
 import express from 'express'
-import { ensureAccounts } from './accounts.js'
 import { createSession, endSession, readSession, verifyPassword } from './auth.js'
 import { pool } from './db.js'
 import { loadState, saveState } from './studentSync.js'
 
-const PORT = Number(process.env.API_PORT || 8787)
 const app = express()
 app.use(express.json({ limit: '200kb' }))
 
@@ -504,10 +502,4 @@ app.use((error, req, res, next) => {
   res.status(offline ? 503 : 500).json({ error: offline ? 'The database is not ready. Run "npm run db:setup" and check .env.' : 'Something went wrong on the server.' })
 })
 
-ensureAccounts(pool)
-  .then(() => app.listen(PORT, () => console.log(`PAC-LAB API listening on http://localhost:${PORT}`)))
-  .catch((error) => {
-    console.error('Could not prepare the database:', error.message)
-    console.error('Run "npm run db:setup" first and check the settings in .env.')
-    process.exit(1)
-  })
+export default app

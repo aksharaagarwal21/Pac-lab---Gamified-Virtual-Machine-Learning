@@ -1,5 +1,27 @@
+# Dependencies and build output
 node_modules
 dist
+
+# Secrets: keep real credentials out of git (.env.example is the template)
 .env
+.env.*
+!.env.example
+*.pem
+
+# Vercel
+.vercel
+
+# Test output
 test-results
 playwright-report
+blob-report
+playwright/.cache
+
+# Logs and editor / OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
