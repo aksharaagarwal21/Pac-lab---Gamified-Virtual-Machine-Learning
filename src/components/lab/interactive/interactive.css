@@ -91,6 +91,7 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  margin-left: var(--tip-nudge, 0px); /* set by InfoTip so the bubble stays on screen */
   transform: translate(-50%, 4px);
   transition: opacity 0.12s, transform 0.12s, visibility 0.12s;
 }

@@ -7,21 +7,38 @@ import { Info } from 'lucide-react'
 export function InfoTip({ label, children, align = 'center' }) {
   const id = useId()
   const [open, setOpen] = useState(false)
+  const bubbleRef = useRef(null)
+
+  // Before showing, nudge the bubble sideways so it stays on screen (narrow phones, edge icons).
+  const fit = () => {
+    const bubble = bubbleRef.current
+    if (!bubble) return
+    bubble.style.setProperty('--tip-nudge', '0px')
+    const { left, right } = bubble.getBoundingClientRect()
+    const edge = 8
+    const limit = document.documentElement.clientWidth - edge
+    const shift = left < edge ? edge - left : right > limit ? limit - right : 0
+    bubble.style.setProperty('--tip-nudge', `${Math.round(shift)}px`)
+  }
+
   return (
-    <span className={`ix-tip is-${align}${open ? ' is-open' : ''}`} onMouseLeave={() => setOpen(false)}>
+    <span className={`ix-tip is-${align}${open ? ' is-open' : ''}`} onMouseEnter={fit} onFocus={fit} onMouseLeave={() => setOpen(false)}>
       <button
         type="button"
         className="ix-tip-btn"
         aria-label={label}
         aria-describedby={id}
         aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          fit()
+          setOpen((value) => !value)
+        }}
         onBlur={() => setOpen(false)}
         onKeyDown={(event) => event.key === 'Escape' && setOpen(false)}
       >
         <Info aria-hidden="true" />
       </button>
-      <span role="tooltip" id={id} className="ix-tip-bubble">
+      <span ref={bubbleRef} role="tooltip" id={id} className="ix-tip-bubble">
         {children}
       </span>
     </span>

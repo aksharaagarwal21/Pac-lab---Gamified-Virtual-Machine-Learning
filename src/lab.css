@@ -487,6 +487,26 @@
   border-bottom: 0;
 }
 
+/* Phones: tighter cells so small tables (confusion matrix, fold scores) fit without scrolling. */
+@media (max-width: 560px) {
+  .lab-table {
+    font-size: 14px;
+  }
+
+  .lab-table th,
+  .lab-table td {
+    padding: 9px 10px;
+  }
+
+  .lab-table th {
+    letter-spacing: 0.06em;
+  }
+
+  .lab-confusion th {
+    white-space: normal;
+  }
+}
+
 .lab-pill {
   justify-self: start;
   display: inline-flex;
@@ -987,12 +1007,29 @@
 .lab-chart-tick {
   fill: #7b8aa5;
   font: 500 11px var(--mz-body);
+  /* Charts shrink with their container; keep ticks at least ~9.5px on screen (see ChartFrame). */
+  font-size: max(11px, calc(9.5px / var(--chart-k, 1)));
 }
 
 .lab-chart-label {
   fill: var(--mz-muted);
   font: 700 12px var(--mz-body);
+  font-size: max(12px, calc(10.5px / var(--chart-k, 1)));
   letter-spacing: 0.06em;
+}
+
+/* Shown only where a wide diagram needs sideways scrolling (narrow screens). */
+.lab-scroll-hint {
+  display: none;
+  margin: 0 0 6px;
+  color: var(--mz-muted);
+  font-size: 12.5px;
+}
+
+@media (max-width: 760px) {
+  .lab-scroll-hint {
+    display: block;
+  }
 }
 
 .lab-tree {

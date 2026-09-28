@@ -1,5 +1,7 @@
 // Small SVG chart primitives shared by the Theory activities and the simulations.
 
+import { useLayoutEffect, useRef, useState } from 'react'
+
 export const CHART_THEME = {
   grid: '#13254a',
   axis: '#2a3d66',
@@ -28,8 +30,26 @@ export const formatTick = (value) => {
   return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(2)))
 }
 
+// How much the chart is shrunk on screen (rendered width / viewBox width). Charts scale with their
+// container, so on a phone their text would shrink too; CSS uses --chart-k to keep it readable.
+function useChartScale(width) {
+  const ref = useRef(null)
+  const [scale, setScale] = useState(1)
+  useLayoutEffect(() => {
+    const svg = ref.current
+    if (!svg || typeof ResizeObserver === 'undefined') return
+    const update = () => svg.clientWidth && setScale(Math.round((svg.clientWidth / width) * 100) / 100)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(svg)
+    return () => observer.disconnect()
+  }, [width])
+  return [ref, scale]
+}
+
 // A plotting frame: gives children scale functions and draws axes, grid and labels.
 export function ChartFrame({ width = 560, height = 300, xDomain, yDomain, xLabel, yLabel, label, children, onPointer }) {
+  const [svgRef, scale] = useChartScale(width)
   const pad = { left: 52, right: 16, top: 14, bottom: 44 }
   const [x0, x1] = xDomain
   const [y0, y1] = yDomain
@@ -50,7 +70,7 @@ export function ChartFrame({ width = 560, height = 300, xDomain, yDomain, xLabel
   }
 
   return (
-    <svg className="lab-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label} onClick={handlePointer}>
+    <svg ref={svgRef} className="lab-chart" viewBox={`0 0 ${width} ${height}`} style={{ '--chart-k': scale }} role="img" aria-label={label} onClick={handlePointer}>
       {niceTicks(x0, x1).map((tick) => (
         <g key={`x${tick}`}>
           <line x1={sx(tick)} x2={sx(tick)} y1={pad.top} y2={height - pad.bottom} stroke={CHART_THEME.grid} />

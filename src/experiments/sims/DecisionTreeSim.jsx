@@ -89,6 +89,8 @@ function TreeDiagram({ tree, criterion, selected, onSelect }) {
   const cy = (depth) => 6 + depth * LEVEL_H
 
   return (
+    <>
+    {width > 340 && <p className="lab-scroll-hint">Swipe sideways to see the whole tree.</p>}
     <div className="lab-table-wrap">
       <svg className="lab-tree" width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="group" aria-label="Decision tree diagram. Select a node to highlight its region.">
         {layout.nodes
@@ -149,6 +151,7 @@ function TreeDiagram({ tree, criterion, selected, onSelect }) {
         })}
       </svg>
     </div>
+    </>
   )
 }
 
