@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { RotateCcw } from 'lucide-react'
-import { clearLab, completeTask, getQuiz, saveQuiz, useProgress } from '../../progress.js'
+import { clearLab, completeTask, getQuiz, nextUnlockBlocker, saveQuiz, useProgress } from '../../progress.js'
 import { say, sfx } from '../../sound.js'
 
 const LETTERS = 'ABCD'
@@ -8,7 +8,7 @@ const PASS_RATIO = 0.5
 
 const starsFor = (ratio) => (ratio >= 0.9 ? 3 : ratio >= 0.7 ? 2 : 1)
 
-function Summary({ kind, questions, record, pretest, reward, onRetake }) {
+function Summary({ kind, questions, record, pretest, reward, blocker, onRetake }) {
   const total = questions.length
   const ratio = record.score / total
   const passed = ratio >= PASS_RATIO
@@ -28,7 +28,7 @@ function Summary({ kind, questions, record, pretest, reward, onRetake }) {
       ) : (
         <p className="lab-p">
           {passed
-            ? `You earned ${starsFor(ratio)} of 3 stars.${reward?.xp ? ` +${reward.xp} XP, +${reward.coins} coins.` : ''} The next level is unlocked.`
+            ? `You earned ${starsFor(ratio)} of 3 stars.${reward?.xp ? ` +${reward.xp} XP, +${reward.coins} coins.` : ''} ${blocker ?? 'The next level is unlocked.'}`
             : `You need ${Math.ceil(total * PASS_RATIO)} correct answers to clear this experiment and unlock the next level.`}
           {pretest?.finished && ` Pretest: ${pretest.score}/${total} → Posttest: ${record.score}/${total}.`}
         </p>
@@ -89,7 +89,7 @@ export function QuizStep({ lab, kind, questions }) {
       completeTask(lab.id, 'posttest')
       setReward(clearLab(lab.id, starsFor(score / questions.length)))
       sfx.powerUp()
-      say('Experiment cleared! Next level unlocked.')
+      say(nextUnlockBlocker(progress, lab.id) ? 'Experiment cleared! Finish the Python speed code to unlock the next level.' : 'Experiment cleared! Next level unlocked.')
     }
   }
 
@@ -144,7 +144,7 @@ export function QuizStep({ lab, kind, questions }) {
       </p>
 
       {record.finished ? (
-        <Summary kind={kind} questions={questions} record={record} pretest={kind === 'posttest' ? pretest : null} reward={reward} onRetake={retake} />
+        <Summary blocker={nextUnlockBlocker(progress, lab.id)} kind={kind} questions={questions} record={record} pretest={kind === 'posttest' ? pretest : null} reward={reward} onRetake={retake} />
       ) : (
         <>
           <span className={`lab-level is-${question.level}`}>{question.level.toUpperCase()}</span>

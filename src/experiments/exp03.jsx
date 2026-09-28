@@ -1,6 +1,7 @@
 import { gaussian, kFolds, mean, polyFit, polyPredict, seeded } from '../lib/ml.js'
 import CVMaze from './sims/cvMaze/CVMaze.jsx'
 import { posttest, pretest } from './quiz/exp03.js'
+import { speedTest } from './speed/exp03.js'
 
 // Fixed data for the "tune the degree" activity: a noisy cubic, scored with real 5-fold cross-validation.
 const THEORY_DATA = (() => {
@@ -276,6 +277,7 @@ export default {
   simulation: CVMaze,
 
   python: {
+    speedTest,
     title: 'Build cross-validation from first principles',
     intro: 'Predict an outcome. Repair a mistake. Build a working function.',
     predict: {

@@ -6,7 +6,7 @@ import { getStudent, getStudentAuth } from './session.js'
 // Maze progress (cleared labs, XP, coins, completed tasks, quizzes), kept per student in this
 // browser and saved to the server, so it survives logging out and switching devices.
 
-const EMPTY = { cleared: {}, xp: 0, coins: 0, tasks: {}, quizzes: {}, savedAt: 0 }
+const EMPTY = { cleared: {}, xp: 0, coins: 0, tasks: {}, quizzes: {}, typing: {}, savedAt: 0 }
 const listeners = new Set()
 let cache = { key: null, value: EMPTY }
 
@@ -105,10 +105,37 @@ export const getProgress = read
 
 export const totalStars = (progress) => Object.values(progress.cleared).reduce((sum, lab) => sum + lab.stars, 0)
 
+// Experiments whose Python Speed Code must be typed out in full once before the next one opens.
+export const SPEED_CODE_LABS = [1, 2, 3]
+
+export const speedCodeRequired = (labId) => SPEED_CODE_LABS.includes(labId)
+export const speedCodeDone = (progress, labId) => (progress.typing?.[labId]?.completions ?? 0) > 0
+
+// A lab opens once the previous one is cleared and, where required, its Speed Code is complete.
 export function labStatus(progress, labId) {
   if (progress.cleared[labId]) return 'cleared'
-  if (labId === 1 || progress.cleared[labId - 1]) return 'ready'
+  if (labId === 1) return 'ready'
+  const previous = labId - 1
+  if (progress.cleared[previous] && (!speedCodeRequired(previous) || speedCodeDone(progress, previous))) return 'ready'
   return 'locked'
+}
+
+// Why a lab is locked, in words a student can act on (null when it is open).
+export function lockReason(progress, labId) {
+  if (labStatus(progress, labId) !== 'locked') return null
+  const previous = labId - 1
+  const quiz = !progress.cleared[previous]
+  const code = speedCodeRequired(previous) && !speedCodeDone(progress, previous)
+  if (quiz && code) return `Pass the Experiment ${previous} posttest and finish its Python Speed Code first.`
+  if (quiz) return `Clear Experiment ${previous} first.`
+  return `Finish the Python Speed Code in Experiment ${previous} first.`
+}
+
+// What still stands between this lab and the next one opening (null when nothing does).
+export function nextUnlockBlocker(progress, labId) {
+  if (!LABS.some((lab) => lab.id === labId + 1)) return null
+  if (speedCodeRequired(labId) && !speedCodeDone(progress, labId)) return 'Finish the Python Speed Code (Simulation → Python practice) to unlock the next level.'
+  return null
 }
 
 export const nextLab = (progress) => LABS.find((lab) => !progress.cleared[lab.id]) ?? null
@@ -164,4 +191,33 @@ export function clearLab(labId, stars) {
     tasks: { ...progress.tasks, [labId]: done.includes('quiz') ? done : [...done, 'quiz'] },
   })
   return reward
+}
+
+// ---------- Python Speed Code ----------
+// typing[labId] = { attempt: { parts: [{ keys, correctKeys, ms } | null] }, best, last, completions }
+
+export function saveSpeedPart(labId, index, stats) {
+  const progress = read()
+  const lab = progress.typing?.[labId] ?? {}
+  const parts = [...(lab.attempt?.parts ?? [])]
+  parts[index] = stats
+  write({ ...progress, typing: { ...progress.typing, [labId]: { ...lab, attempt: { parts } } } })
+}
+
+// Records a finished run (all parts typed). The best run is the one with the highest WPM.
+export function finishSpeedCode(labId, result) {
+  const progress = read()
+  const lab = progress.typing?.[labId] ?? {}
+  const best = !lab.best || result.wpm > lab.best.wpm ? result : lab.best
+  write({
+    ...progress,
+    typing: { ...progress.typing, [labId]: { best, last: result, completions: (lab.completions ?? 0) + 1, attempt: null } },
+  })
+}
+
+export function resetSpeedAttempt(labId) {
+  const progress = read()
+  const lab = progress.typing?.[labId]
+  if (!lab?.attempt) return
+  write({ ...progress, typing: { ...progress.typing, [labId]: { ...lab, attempt: null } } })
 }

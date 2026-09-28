@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, CircleDollarSign, Flame, Gauge, Maximize, Minimize, Pause, Play, RotateCcw, Star, Zap } from 'lucide-react'
-import { clearLab, completeTask, getQuiz, saveQuizRun, useProgress } from '../../progress.js'
+import { clearLab, completeTask, getQuiz, nextUnlockBlocker, saveQuizRun, useProgress } from '../../progress.js'
 import { say, sfx } from '../../sound.js'
 import {
   COMBO_COINS,
@@ -193,7 +193,7 @@ export function QuizRace({ lab, kind, questions }) {
 
         if (passed) {
           sfx.powerUp()
-          say(kind === 'pretest' ? 'Pretest race complete.' : 'Experiment cleared! Next level unlocked.')
+          say(kind === 'pretest' ? 'Pretest race complete.' : nextUnlockBlocker(progress, lab.id) ? 'Experiment cleared! Finish the Python speed code to unlock the next level.' : 'Experiment cleared! Next level unlocked.')
         } else {
           sfx.denied()
           say('Not cleared yet. Race again to unlock the next level.')
@@ -589,7 +589,7 @@ export function QuizRace({ lab, kind, questions }) {
                 {kind === 'pretest'
                   ? `This shows what you already know. Work through Procedure and Simulation, then race the Posttest: ${Math.ceil(total * PASS_RATIO)} / ${total} correct gates there clears the experiment.`
                   : result.passed
-                    ? 'The next level is unlocked.'
+                    ? (nextUnlockBlocker(progress, lab.id) ?? 'The next level is unlocked.')
                     : `You need ${Math.ceil(total * PASS_RATIO)} correct gates to clear this experiment and unlock the next level.`}
                 {pretest?.finished && ` Pretest ${pretest.score}/${total} → Posttest ${result.score}/${total}.`}
               </p>

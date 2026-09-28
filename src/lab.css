@@ -1408,8 +1408,46 @@
 
 .lab-python-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--tabs, 4), minmax(0, 1fr));
   gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .lab-python-tabs {
+    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  }
+}
+
+.lab-python-tab.is-speed {
+  border-color: rgba(245, 197, 24, 0.55);
+}
+
+.lab-speed-callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--mz-yellow);
+  border-radius: 12px;
+  background: rgba(245, 197, 24, 0.07);
+  color: var(--mz-soft);
+}
+
+.lab-speed-callout > svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--mz-yellow);
+}
+
+.lab-speed-callout p {
+  flex: 1 1 280px;
+  margin: 0;
+}
+
+.lab-speed-callout b {
+  color: var(--mz-yellow);
 }
 
 .lab-python-tab {

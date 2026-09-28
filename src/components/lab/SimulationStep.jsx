@@ -7,7 +7,7 @@ import { PythonStudio } from './PythonStudio.jsx'
 
 const MODES = [
   { id: 'visual', label: 'Visual activity', hint: 'Change, compare, explain', icon: FlaskConical },
-  { id: 'python', label: 'Python practice', hint: 'Predict, repair, build', icon: Code },
+  { id: 'python', label: 'Python practice', hint: 'Predict, repair, build, speed code', icon: Code },
 ]
 
 export function SimulationStep({ lab, content, onSaved }) {

@@ -27,7 +27,7 @@ import { MazeShell } from '../components/maze/MazeShell.jsx'
 import { GhostIcon } from '../components/maze/sprites.jsx'
 import { LABS, labNumber } from '../data/labs.js'
 import { usePageMeta } from '../meta.js'
-import { labStatus, nextLab, totalStars, useProgress } from '../progress.js'
+import { labStatus, lockReason, nextLab, totalStars, useProgress } from '../progress.js'
 import { say, sfx } from '../sound.js'
 
 const LAB_ICONS = { 1: Eraser, 2: TrendingUp, 3: Layers, 4: ToggleRight, 5: Minimize2, 6: Split, 7: Boxes, 8: GitBranch, 9: Trees, 10: BrainCircuit }
@@ -168,7 +168,7 @@ export default function StudentHome() {
     const target = LABS[index]
     if (labStatus(progress, target.id) === 'locked') {
       setSelected(index)
-      setNote(`Locked. Clear Experiment ${target.id - 1} first.`)
+      setNote(`Locked. ${lockReason(progress, target.id)}`)
       sfx.denied()
       return
     }

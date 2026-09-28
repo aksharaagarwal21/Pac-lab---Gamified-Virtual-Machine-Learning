@@ -78,7 +78,7 @@ test('mobile: board and answers fit, tapping a destination submits exactly once'
 
 test('real experiment route uses chess only for Experiment 2 pretest', async ({ page }) => {
   // Isolated browser-only API fixtures: no real student or database writes.
-  const state = { cleared: { 1: { stars: 3 } }, tasks: {}, quizzes: {}, xp: 100, coins: 10, savedAt: Date.now() }
+  const state = { cleared: { 1: { stars: 3 } }, typing: { 1: { completions: 1 } }, tasks: {}, quizzes: {}, xp: 100, coins: 10, savedAt: Date.now() }
   await page.route('**/api/student/**', async (route) => {
     const url = route.request().url()
     await route.fulfill({ json: url.endsWith('/login')

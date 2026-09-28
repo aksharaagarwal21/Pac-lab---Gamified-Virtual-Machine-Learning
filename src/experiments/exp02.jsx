@@ -2,6 +2,7 @@ import { leastSquares, regressionMetrics } from '../lib/ml.js'
 import RegressionLab from './sims/regressionLab/RegressionLab.jsx'
 import { posttest, pretest } from './quiz/exp02.js'
 import { ChessPretest } from '../components/lab/ChessPretest.jsx'
+import { speedTest } from './speed/exp02.js'
 
 // Fixed observations for the Theory activities: y ≈ 0.8x + 0.3 with small, repeatable noise.
 const NOISE = [0.21, -0.35, 0.12, 0.4, -0.18, 0.05, -0.27, 0.33, -0.08, 0.16, -0.4, 0.28, -0.1]
@@ -251,6 +252,7 @@ export default {
   simulation: RegressionLab,
 
   python: {
+    speedTest,
     title: 'Fit a line from first principles',
     intro: 'Predict an outcome. Repair a mistake. Build a working function.',
     predict: {

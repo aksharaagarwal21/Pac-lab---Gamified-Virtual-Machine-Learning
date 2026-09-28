@@ -2,6 +2,7 @@ import { QuizRace } from '../components/lab/QuizRace.jsx'
 import { RedLightQuiz } from '../components/lab/RedLightQuiz.jsx'
 import PreprocessingSim from './sims/PreprocessingSim.jsx'
 import { posttest, pretest } from './quiz/exp01.js'
+import { speedTest } from './speed/exp01.js'
 
 // Experiment content shape (all experiments follow it):
 // aim, procedure, results: content blocks (see ContentBlocks.jsx)
@@ -266,6 +267,7 @@ export default {
   simulation: PreprocessingSim,
 
   python: {
+    speedTest,
     title: 'Clean data from first principles',
     intro: 'Predict an outcome. Repair a mistake. Build a working function.',
     predict: {

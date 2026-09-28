@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Check, Download, Play, RotateCcw, Square } from 'lucide-react'
+import { Check, Download, Keyboard, Play, RotateCcw, Square } from 'lucide-react'
 import { runPython, stopPython } from '../../lib/python.js'
+import { speedCodeDone, useProgress } from '../../progress.js'
 import { sfx } from '../../sound.js'
+import { SpeedCode } from './speedCode/SpeedCode.jsx'
 
 const TABS = [
   { id: 'predict', label: 'Predict' },
@@ -9,6 +11,7 @@ const TABS = [
   { id: 'build', label: 'Build' },
   { id: 'explore', label: 'Explore' },
 ]
+const SPEED_TAB = { id: 'speed', label: 'Speed Code' }
 const CHECKPOINTS = ['predict', 'repair', 'build']
 const PASS_MARK = 'ALL TESTS PASSED'
 
@@ -71,6 +74,9 @@ function CodeEditor({ id, value, onChange, onRun, fileName }) {
 
 export function PythonStudio({ lab, practice, seed }) {
   const id = useId()
+  const progress = useProgress()
+  const tabs = practice.speedTest ? [...TABS, SPEED_TAB] : TABS
+  const speedDone = speedCodeDone(progress, lab.id)
   const [tab, setTab] = useState('predict')
   const [codes, setCodes] = useState(() => Object.fromEntries(TABS.map((t) => [t.id, practice[t.id].code])))
   const [result, setResult] = useState(null)
@@ -78,7 +84,12 @@ export function PythonStudio({ lab, practice, seed }) {
   const [loadedOnce, setLoadedOnce] = useState(false)
   const [prediction, setPrediction] = useState(null)
   const [passed, setPassed] = useState([])
-  const cell = practice[tab]
+  const cell = practice[tab] ?? practice.predict
+  const openTab = (next) => {
+    setTab(next)
+    setResult(null)
+    sfx.select()
+  }
 
   // "Use this data in Python" from the simulation opens Explore with that code.
   useEffect(() => {
@@ -154,25 +165,38 @@ export function PythonStudio({ lab, practice, seed }) {
         {passed.length} / {CHECKPOINTS.length} checkpoints
       </span>
 
-      <div className="lab-python-tabs" role="tablist" aria-label="Python practice">
-        {TABS.map((item, index) => (
+      {practice.speedTest && !speedDone && tab !== 'speed' && (
+        <div className="lab-speed-callout">
+          <Keyboard aria-hidden="true" />
+          <p>
+            <b>Required: Speed Code.</b> Type this experiment’s full Python program by hand, part by part. You must finish it once to unlock the next experiment.
+          </p>
+          <button type="button" className="lab-btn lab-btn-primary" onClick={() => openTab('speed')}>
+            Open Speed Code
+          </button>
+        </div>
+      )}
+
+      <div className="lab-python-tabs" role="tablist" aria-label="Python practice" style={{ '--tabs': tabs.length }}>
+        {tabs.map((item, index) => (
           <button
             key={item.id}
             type="button"
             role="tab"
             aria-selected={tab === item.id}
-            className="lab-python-tab"
-            onClick={() => {
-              setTab(item.id)
-              setResult(null)
-              sfx.select()
-            }}
+            className={`lab-python-tab${item.id === 'speed' ? ' is-speed' : ''}`}
+            onClick={() => openTab(item.id)}
           >
             <small>{String(index + 1).padStart(2, '0')}</small> {item.label}
-            {passed.includes(item.id) && <Check aria-label="passed" />}
+            {(item.id === 'speed' ? speedDone : passed.includes(item.id)) && <Check aria-label="passed" />}
           </button>
         ))}
       </div>
+
+      {tab === 'speed' ? (
+        <SpeedCode lab={lab} speedTest={practice.speedTest} />
+      ) : (
+        <>
 
       <div className="lab-python-brief">
         <h4 className="lab-subtitle">{cell.question}</h4>
@@ -233,9 +257,15 @@ export function PythonStudio({ lab, practice, seed }) {
           {result.verdict && <p className="lab-console-verdict">{result.verdict}</p>}
         </div>
       )}
+        </>
+      )}
 
-      <p className="lab-muted">Python loads when you first run code.</p>
-      <p className="lab-muted">Runs use browser Python with its standard library. Your code is not uploaded. Work stays in this page session; use Save code to keep a copy.</p>
+      {tab !== 'speed' && (
+        <>
+          <p className="lab-muted">Python loads when you first run code.</p>
+          <p className="lab-muted">Runs use browser Python with its standard library. Your code is not uploaded. Work stays in this page session; use Save code to keep a copy.</p>
+        </>
+      )}
 
       {practice.reference && (
         <details className="lab-hint">
