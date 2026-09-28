@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import AuthForm from '../components/AuthForm.jsx'
 import { CLASSES, saveClass } from '../data/classes.js'
 import { studentFetch } from '../lib/studentApi.js'
@@ -30,6 +30,11 @@ export default function StudentLogin() {
       idPlaceholder="ML-2026-901"
       accent="student"
       onSignIn={handleSignIn}
+      footer={
+        <p className="auth-switch">
+          NEW PLAYER? <Link to="/register">CREATE AN ACCOUNT</Link>
+        </p>
+      }
     />
   )
 }

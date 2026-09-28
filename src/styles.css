@@ -670,6 +670,113 @@ a.arcade-button {
   color: var(--arcade-yellow);
 }
 
+/* Auth fields fill their column and can shrink with it (inputs otherwise keep a built-in minimum width). */
+.auth-card,
+.auth-card *,
+.auth-card *::before,
+.auth-card *::after {
+  box-sizing: border-box;
+}
+
+.auth-field,
+.auth-row > * {
+  min-width: 0;
+}
+
+.auth-field input,
+.auth-field select,
+.auth-submit {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.auth-links {
+  flex-wrap: wrap;
+}
+
+/* Registration page */
+.auth-card-wide {
+  width: min(36rem, 92vw);
+}
+
+.auth-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  display: grid;
+}
+
+@media (width <= 480px) {
+  .auth-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auth-field select {
+  border: 2px solid var(--arcade-blue);
+  background: var(--arcade-ink);
+  color: var(--arcade-yellow);
+  font-family: var(--font-mono);
+  padding: 0.85rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.auth-field select:focus-visible {
+  border-color: var(--arcade-yellow);
+  outline: none;
+}
+
+.auth-field select:disabled {
+  opacity: 0.6;
+}
+
+.auth-field-hint,
+.auth-field-error {
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.auth-field-hint {
+  color: var(--arcade-cyan);
+  opacity: 0.75;
+}
+
+.auth-field-error {
+  color: var(--arcade-pink);
+}
+
+.auth-field.is-invalid input,
+.auth-field.is-invalid select {
+  border-color: var(--arcade-pink);
+}
+
+.auth-note.is-error {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.auth-switch {
+  color: var(--arcade-cyan);
+  font-family: var(--font-pixel);
+  text-align: center;
+  margin: 0;
+  font-size: clamp(0.42rem, 1vw, 0.56rem);
+  line-height: 1.8;
+}
+
+.auth-switch a {
+  color: var(--arcade-yellow);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.auth-switch a:hover,
+.auth-switch a:focus-visible {
+  color: var(--arcade-pink);
+}
+
 @media (width <= 640px) {
   .arcade-header > span:nth-child(2),
   .arcade-footer > span:first-child {

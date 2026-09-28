@@ -4,6 +4,7 @@ import Home from './routes/Home.jsx'
 import LoginIndex from './routes/LoginIndex.jsx'
 import StudentLogin from './routes/StudentLogin.jsx'
 import FacultyLogin from './routes/FacultyLogin.jsx'
+import StudentRegister from './routes/StudentRegister.jsx'
 import MazeHome from './routes/MazeHome.jsx'
 import StudentHome from './routes/StudentHome.jsx'
 import Dashboard from './routes/Dashboard.jsx'
@@ -43,6 +44,7 @@ const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: 'login',
 const loginIndexRoute = createRoute({ getParentRoute: () => loginRoute, path: '/', component: LoginIndex })
 const studentLoginRoute = createRoute({ getParentRoute: () => loginRoute, path: 'student', component: StudentLogin })
 const facultyLoginRoute = createRoute({ getParentRoute: () => loginRoute, path: 'faculty', component: FacultyLogin })
+const registerRoute = createRoute({ getParentRoute: () => rootRoute, path: 'register', component: StudentRegister })
 
 // Student area: only reachable after signing in.
 const studentRoute = createRoute({
@@ -87,6 +89,7 @@ const facultyStudentRoute = createRoute({ getParentRoute: () => facultyRoute, pa
 const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute.addChildren([loginIndexRoute, studentLoginRoute, facultyLoginRoute]),
+  registerRoute,
   studentRoute.addChildren([studentHomeRoute, mazeRoute, dashboardRoute, labRoute]),
   facultyRoute.addChildren([facultyHomeRoute, facultyClassRoute, facultyStudentRoute]),
 ])

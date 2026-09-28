@@ -39,6 +39,9 @@ export default function LoginIndex() {
             <span>CONTROL THE MAZE</span>
           </Link>
         </div>
+        <p className="auth-switch">
+          NEW STUDENT? <Link to="/register">REGISTER HERE</Link>
+        </p>
         <Link to="/" className="arcade-button auth-back">
           BACK TO TITLE
         </Link>

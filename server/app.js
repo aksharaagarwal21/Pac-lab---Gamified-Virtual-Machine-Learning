@@ -4,8 +4,9 @@
 
 import 'dotenv/config'
 import express from 'express'
-import { createSession, endSession, readSession, verifyPassword } from './auth.js'
+import { createSession, endSession, hashPassword, readSession, verifyPassword } from './auth.js'
 import { pool } from './db.js'
+import { normalizeRegistration, registrationError } from '../src/lib/registration.js'
 import { loadState, saveState } from './studentSync.js'
 
 const app = express()
@@ -51,6 +52,65 @@ app.post('/api/student/login', route(async (req, res) => {
     token: createSession('student', id),
     student: { id, name: `${student.first_name} ${student.last_name}`, className: student.class_code },
     state: await loadState(pool, id),
+  })
+}))
+
+// ---------- students: registration ----------
+
+// Classes a new student can join (shown on the registration page).
+app.get('/api/student/classes', route(async (req, res) => {
+  const [rows] = await pool.query(
+    `SELECT c.code, c.section, c.semester, d.name AS department
+     FROM classes c JOIN departments d ON d.id = c.department_id ORDER BY d.name, c.section`,
+  )
+  res.json({ classes: rows.map((c) => ({ code: c.code, department: c.department, section: c.section, semester: c.semester })) })
+}))
+
+app.post('/api/student/register', route(async (req, res) => {
+  const form = normalizeRegistration(req.body)
+  const invalid = registrationError(form)
+  if (invalid) {
+    res.status(400).json({ error: invalid })
+    return
+  }
+
+  const [[cls]] = await pool.query('SELECT id, code FROM classes WHERE code = ?', [form.classCode])
+  if (!cls) {
+    res.status(400).json({ error: 'Please choose your class from the list.' })
+    return
+  }
+  const [[taken]] = await pool.query(
+    'SELECT (SELECT COUNT(*) FROM students WHERE id = ?) AS id_taken, (SELECT COUNT(*) FROM students WHERE email = ?) AS email_taken',
+    [form.studentId, form.email],
+  )
+  if (taken.id_taken) {
+    res.status(409).json({ error: 'This roll number is already registered. Sign in instead.' })
+    return
+  }
+  if (taken.email_taken) {
+    res.status(409).json({ error: 'This email is already registered to another roll number.' })
+    return
+  }
+
+  try {
+    await pool.query(
+      `INSERT INTO students (id, class_id, first_name, last_name, email, password_hash, enrolled_on, last_active_at)
+       VALUES (?, ?, ?, ?, ?, ?, CURDATE(), NOW())`,
+      [form.studentId, cls.id, form.firstName, form.lastName, form.email, hashPassword(form.password)],
+    )
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      res.status(409).json({ error: 'This roll number or email is already registered. Sign in instead.' })
+      return
+    }
+    throw error
+  }
+  await pool.query(`INSERT INTO activity_log (student_id, event, detail, created_at) VALUES (?, 'login', 'Registered and signed in', NOW())`, [form.studentId])
+
+  res.status(201).json({
+    token: createSession('student', form.studentId),
+    student: { id: form.studentId, name: `${form.firstName} ${form.lastName}`, className: cls.code },
+    state: null,
   })
 }))
 

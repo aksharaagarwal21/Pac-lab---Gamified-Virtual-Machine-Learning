@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { say, sfx } from '../sound.js'
 
-export default function AuthForm({ role, subtitle, idLabel, idPlaceholder, accent, onSignIn, loadingNote = 'PLAYER READY // LOADING LAB...' }) {
+export default function AuthForm({ role, subtitle, idLabel, idPlaceholder, accent, onSignIn, loadingNote = 'PLAYER READY // LOADING LAB...', footer = null }) {
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState(null)
 
@@ -81,6 +81,8 @@ export default function AuthForm({ role, subtitle, idLabel, idPlaceholder, accen
               </p>
             )}
           </form>
+
+          {footer}
 
           <div className="auth-links">
             <Link to="/login">SWITCH PLAYER</Link>
