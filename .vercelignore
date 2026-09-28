@@ -1,0 +1,11 @@
+# Never upload local secrets or build/test leftovers when deploying with the Vercel CLI.
+.env
+.env.*
+!.env.example
+*.pem
+node_modules
+dist
+test-results
+playwright-report
+blob-report
+tests
