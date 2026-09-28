@@ -46,6 +46,31 @@ export function sanitizeState(input) {
     }
   }
 
+  // Python Speed Code runs (see src/progress.js): completions unlock the next experiment.
+  const typing = {}
+  const cleanRun = (run) =>
+    run && typeof run === 'object'
+      ? {
+          wpm: Math.min(400, Math.max(0, Number(run.wpm) || 0)),
+          accuracy: Math.min(1, Math.max(0, Number(run.accuracy) || 0)),
+          ms: toInt(run.ms, 0, 864e5),
+          keys: toInt(run.keys, 0, 1e6),
+          correctKeys: toInt(run.correctKeys, 0, 1e6),
+          at: toInt(run.at, 0, Date.now() + 864e5),
+        }
+      : null
+  const cleanPart = (part) => (part && typeof part === 'object' ? { keys: toInt(part.keys, 0, 1e6), correctKeys: toInt(part.correctKeys, 0, 1e6), ms: toInt(part.ms, 0, 864e5) } : null)
+  for (const [id, lab] of Object.entries(source.typing ?? {})) {
+    if (!LAB_IDS.has(id) || !lab || typeof lab !== 'object') continue
+    const parts = Array.isArray(lab.attempt?.parts) ? lab.attempt.parts.slice(0, 20).map(cleanPart) : null
+    typing[id] = {
+      completions: toInt(lab.completions, 0, 1000),
+      best: cleanRun(lab.best),
+      last: cleanRun(lab.last),
+      attempt: parts ? { parts } : null,
+    }
+  }
+
   const clearedLabs = LABS.filter((lab) => cleared[lab.id])
   const quizBonus = (field) =>
     Object.values(quizzes).reduce((sum, lab) => sum + KINDS.reduce((total, kind) => total + (lab[kind]?.bonus?.[field] ?? 0), 0), 0)
@@ -55,6 +80,7 @@ export function sanitizeState(input) {
     coins: clearedLabs.reduce((sum, lab) => sum + cleared[lab.id].stars * 10, 0) + quizBonus('coins'),
     tasks,
     quizzes,
+    typing,
     savedAt: toInt(source.savedAt, 0, Date.now() + 864e5),
   }
 }

@@ -89,3 +89,21 @@ test('experiments 1-3 stay locked behind their speed code; later ones only need 
   assert.equal(nextUnlockBlocker(state([1], [1]), 1), null)
   assert.equal(nextUnlockBlocker(state([4]), 4), null)
 })
+
+test('the server keeps Speed Code progress when it saves a student', async () => {
+  const { sanitizeState } = await import('../server/studentSync.js')
+  const saved = sanitizeState({
+    cleared: { 1: { stars: 3 } },
+    typing: {
+      1: { completions: 2, best: { wpm: 42.5, accuracy: 0.97, ms: 300000, keys: 2000, correctKeys: 1940, at: 1 }, attempt: null },
+      2: { completions: 0, attempt: { parts: [{ keys: 300, correctKeys: 290, ms: 60000 }, null] } },
+      99: { completions: 5 },
+    },
+  })
+  assert.equal(saved.typing[1].completions, 2)
+  assert.equal(saved.typing[1].best.wpm, 42.5)
+  assert.deepEqual(saved.typing[2].attempt.parts, [{ keys: 300, correctKeys: 290, ms: 60000 }, null])
+  assert.equal(saved.typing[99], undefined, 'unknown experiments are dropped')
+  const { labStatus } = await import('../src/progress.js')
+  assert.equal(labStatus(saved, 2), 'ready', 'a student who typed the code keeps Experiment 2 open after a server round trip')
+})

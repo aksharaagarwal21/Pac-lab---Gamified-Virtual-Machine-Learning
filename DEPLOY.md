@@ -38,6 +38,14 @@ This creates the `pac_lab` database, its tables, the sample data and the demo ac
 
 Afterwards, switch `.env` back to your local MySQL if you still want to develop locally.
 
+### If `db:setup` fails with `HANDSHAKE_SSL_ERROR` / `ECONNRESET`
+
+Some networks (college or office firewalls, antivirus "SSL scanning") block encrypted MySQL connections from your computer. In that case, run the setup from Vercel instead, after step 3:
+
+1. Add a `SETUP_TOKEN` environment variable (any random string of 24+ characters) and redeploy.
+2. Run `curl -X POST https://<your-project>.vercel.app/api/setup -H "x-setup-token: <that string>"`.
+3. Delete `SETUP_TOKEN` and redeploy. This turns the endpoint off again (it answers 404).
+
 ## 3. Create the Vercel project
 
 1. Go to vercel.com and choose **Add New… → Project**.
