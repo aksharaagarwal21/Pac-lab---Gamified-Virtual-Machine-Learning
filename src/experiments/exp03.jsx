@@ -1,5 +1,5 @@
 import { gaussian, kFolds, mean, polyFit, polyPredict, seeded } from '../lib/ml.js'
-import CrossValidationSim from './sims/CrossValidationSim.jsx'
+import CVMaze from './sims/cvMaze/CVMaze.jsx'
 import { posttest, pretest } from './quiz/exp03.js'
 
 // Fixed data for the "tune the degree" activity: a noisy cubic, scored with real 5-fold cross-validation.
@@ -273,7 +273,7 @@ export default {
   pretest,
   posttest,
 
-  simulation: CrossValidationSim,
+  simulation: CVMaze,
 
   python: {
     title: 'Build cross-validation from first principles',

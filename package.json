@@ -11,7 +11,9 @@
     "db:setup": "node server/setup.js",
     "dev:all": "node server/dev-all.js",
     "test:chess": "node --test tests/chessArcade.test.mjs",
-    "test:chess:browser": "playwright test"
+    "test:chess:browser": "playwright test",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.120.0",
