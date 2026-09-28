@@ -88,6 +88,8 @@ vercel --prod
 
 ## Notes
 
+- **Staying awake:** Aiven free databases have no time limit, but Aiven may power off one that sees no activity (it emails you first; you can turn it back on in the Aiven console). A daily Vercel Cron job calls `/api/health` (see `vercel.json`), so the database is used at least once a day.
+
 - **Sign-ins:** signed tokens, valid for 8 hours. Changing `SESSION_SECRET` signs everyone out.
 - **Python:** the in-browser Python (Pyodide) loads from the jsDelivr CDN, so there is nothing to host for it.
 - **Local development:** unchanged. Use `npm run dev:all`, or `npm run server` and `npm run dev`.
