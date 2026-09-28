@@ -1,5 +1,5 @@
 import { leastSquares, regressionMetrics } from '../lib/ml.js'
-import RegressionSim from './sims/RegressionSim.jsx'
+import RegressionLab from './sims/regressionLab/RegressionLab.jsx'
 import { posttest, pretest } from './quiz/exp02.js'
 import { ChessPretest } from '../components/lab/ChessPretest.jsx'
 
@@ -248,7 +248,7 @@ export default {
   posttest,
   pretestGame: ChessPretest,
 
-  simulation: RegressionSim,
+  simulation: RegressionLab,
 
   python: {
     title: 'Fit a line from first principles',
