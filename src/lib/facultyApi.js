@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getFaculty, signOutFaculty } from '../facultySession.js'
 
 export class ApiError extends Error {
@@ -28,9 +28,12 @@ export async function facultyFetch(path, { method = 'GET', body } = {}) {
   return data
 }
 
-// Loads one API path; refetches when the path changes.
+// Loads one API path; refetches when the path changes or reload() is called (keeping the current
+// data on screen while it reloads).
 export function useFacultyData(path) {
   const [state, setState] = useState({ path: null, data: null, error: null })
+  const [version, setVersion] = useState(0)
+  const reload = useCallback(() => setVersion((current) => current + 1), [])
 
   useEffect(() => {
     let cancelled = false
@@ -41,7 +44,7 @@ export function useFacultyData(path) {
     return () => {
       cancelled = true
     }
-  }, [path])
+  }, [path, version])
 
-  return state.path === path ? state : { path, data: null, error: null }
+  return { ...(state.path === path ? state : { path, data: null, error: null }), reload }
 }
