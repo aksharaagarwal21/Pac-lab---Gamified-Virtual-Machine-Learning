@@ -1,0 +1,515 @@
+/* Classrooms: faculty classroom pages, the student's Classrooms page and the join link page. */
+
+/* ---------- Forms ---------- */
+
+.cr-form {
+  display: grid;
+  gap: 16px;
+}
+
+.cr-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 16px;
+}
+
+.cr-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cr-field label {
+  color: var(--mz-soft);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.cr-field-hint,
+.cr-field-error {
+  color: var(--mz-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cr-field-error {
+  color: #ff8fab;
+}
+
+.cr-field.is-invalid .lab-input,
+.cr-field.is-invalid .lab-select {
+  border-color: rgba(255, 92, 138, 0.7);
+}
+
+.cr-field .lab-input:focus-visible,
+.cr-code-input:focus-visible {
+  outline: 2px solid var(--mz-cyan);
+  outline-offset: 2px;
+}
+
+.cr-textarea {
+  min-height: 0;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.cr-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--lab-border);
+  border-radius: 10px;
+  background: var(--lab-sunk);
+  cursor: pointer;
+}
+
+.cr-check input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--mz-yellow);
+}
+
+.cr-check span {
+  display: grid;
+  gap: 2px;
+}
+
+.cr-check strong {
+  color: var(--mz-text);
+  font-size: 15px;
+}
+
+.cr-check small {
+  color: var(--mz-muted);
+  font-size: 13px;
+}
+
+.cr-check:has(input:focus-visible) {
+  outline: 2px solid var(--mz-cyan);
+  outline-offset: 2px;
+}
+
+.cr-note {
+  font-size: 13px;
+}
+
+.cr-message {
+  margin: 0;
+  color: #6ee7b7;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cr-message.is-error {
+  color: #ff8fab;
+}
+
+.cr-small {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+
+.cr-danger:hover:not(:disabled) {
+  border-color: var(--mz-pink);
+  color: var(--mz-pink);
+}
+
+.cr-flag-muted {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--mz-soft);
+}
+
+/* ---------- Classroom cards ---------- */
+
+.cr-card-name {
+  color: var(--mz-text);
+  font-weight: 700;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.cr-card.is-static:hover {
+  transform: none;
+  border-color: var(--lab-border);
+  box-shadow: none;
+}
+
+.cr-card.is-static .cr-small {
+  justify-self: start;
+}
+
+.cr-card-text {
+  margin: 0;
+  color: var(--mz-soft);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.cr-card-teacher {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--lab-border);
+  color: var(--mz-text);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.cr-card-teacher a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.cr-card-teacher svg,
+.cr-inline-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+.cr-code-inline {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(245, 197, 24, 0.1);
+  color: var(--mz-yellow);
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- One classroom (faculty) ---------- */
+
+.cr-head-text {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.cr-head-text .fc-hero-title {
+  overflow-wrap: anywhere;
+}
+
+.cr-join-card {
+  display: grid;
+  gap: 6px;
+  flex: 0 1 360px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(245, 197, 24, 0.35);
+  border-radius: 12px;
+  background: var(--lab-sunk);
+}
+
+.cr-code {
+  color: var(--mz-yellow);
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  font-size: clamp(1.7rem, 6vw, 2.4rem);
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-shadow: 0 0 18px rgba(245, 197, 24, 0.3);
+}
+
+.cr-link {
+  color: var(--mz-cyan);
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.cr-join-actions,
+.cr-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.cr-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.cr-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 10px;
+  background: rgba(52, 211, 153, 0.06);
+}
+
+.cr-result > svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: #6ee7b7;
+}
+
+.cr-result > div {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cr-result strong {
+  color: var(--mz-text);
+}
+
+.cr-preview summary {
+  color: var(--mz-cyan);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cr-preview pre {
+  margin: 8px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--lab-sunk);
+  color: var(--mz-soft);
+  font: 13px/1.6 "Space Mono", monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cr-settings {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cr-settings li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--lab-border);
+}
+
+.cr-settings li:first-child {
+  padding-top: 0;
+}
+
+.cr-settings li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.cr-settings span {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 200px;
+}
+
+.cr-settings strong {
+  color: var(--mz-text);
+  font-size: 15px;
+}
+
+.cr-settings small {
+  color: var(--mz-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Roster */
+
+.cr-roster {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--lab-border);
+  border-radius: 10px;
+}
+
+.cr-roster-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(130px, auto) minmax(110px, auto);
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #111e3a;
+}
+
+.cr-roster-row:last-child {
+  border-bottom: 0;
+}
+
+.cr-roster-row .fc-student-cell {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cr-status {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.cr-status.is-joined { background: rgba(52, 211, 153, 0.14); color: #6ee7b7; }
+.cr-status.is-invited { background: rgba(34, 211, 238, 0.14); color: #67e8f9; }
+.cr-status.is-not_invited { background: rgba(148, 163, 184, 0.12); color: var(--mz-muted); }
+
+.cr-when {
+  color: var(--mz-muted);
+  font-size: 13px;
+}
+
+.cr-row-action {
+  justify-self: end;
+}
+
+@media (width < 960px) {
+  .cr-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (width < 640px) {
+  .cr-roster-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 12px;
+  }
+
+  .cr-when {
+    grid-column: 1;
+  }
+
+  .cr-row-action {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .cr-join-card {
+    flex-basis: 100%;
+  }
+}
+
+/* ---------- Student: My classrooms ---------- */
+
+.cr-page {
+  gap: 32px;
+}
+
+.cr-code-form {
+  display: grid;
+  gap: 8px;
+  flex: 0 1 380px;
+  min-width: 0;
+}
+
+.cr-code-form label {
+  color: var(--mz-soft);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.cr-code-row {
+  display: flex;
+  gap: 10px;
+}
+
+.cr-code-input {
+  flex: 1;
+  min-width: 0;
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cr-code-input::placeholder {
+  color: var(--mz-dim);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.cr-code-form .cr-message:not(.is-error):not([role]) {
+  color: var(--mz-muted);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+/* ---------- Join link page (arcade style) ---------- */
+
+.cr-invite {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+}
+
+.cr-invite div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.cr-invite dt {
+  color: var(--arcade-cyan);
+  font-size: clamp(0.42rem, 1vw, 0.56rem);
+}
+
+.cr-invite dd {
+  margin: 0;
+  color: var(--arcade-yellow);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.cr-success {
+  color: var(--arcade-yellow);
+}
+
+.cr-text-link {
+  justify-self: center;
+  color: var(--arcade-pink);
+  font-size: clamp(0.42rem, 1vw, 0.56rem);
+  line-height: 1.8;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cr-text-link:hover,
+.cr-text-link:focus-visible {
+  color: var(--arcade-yellow);
+}
+
+.auth-subtitle.cr-joining {
+  color: var(--arcade-yellow);
+}
+
+.arcade-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
