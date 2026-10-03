@@ -1,4 +1,4 @@
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import AuthForm from '../components/AuthForm.jsx'
 import { CLASSES, saveClass } from '../data/classes.js'
 import { studentFetch } from '../lib/studentApi.js'
@@ -9,6 +9,8 @@ import { say } from '../sound.js'
 
 export default function StudentLogin() {
   const navigate = useNavigate()
+  // Set when the student came from a classroom invite link.
+  const { join } = useSearch({ strict: false })
 
   usePageMeta('Student Login | PAC-LAB', 'Student sign-in for PAC-LAB, the arcade-styled virtual machine learning lab.')
 
@@ -19,7 +21,7 @@ export default function StudentLogin() {
     if (CLASSES.includes(student.className)) saveClass(student.id, student.className)
     say(`Player one. Welcome back, ${student.name.split(' ')[0]}.`)
     // Leave time for the coin sound and loading note before switching screens.
-    setTimeout(() => navigate({ to: '/student' }), 900)
+    setTimeout(() => navigate(join ? { to: '/join/$code', params: { code: join } } : { to: '/student' }), 900)
   }
 
   return (
@@ -32,7 +34,10 @@ export default function StudentLogin() {
       onSignIn={handleSignIn}
       footer={
         <p className="auth-switch">
-          NEW PLAYER? <Link to="/register">CREATE AN ACCOUNT</Link>
+          NEW PLAYER?{' '}
+          <Link to="/register" search={join ? { join } : {}}>
+            CREATE AN ACCOUNT
+          </Link>
         </p>
       }
     />
