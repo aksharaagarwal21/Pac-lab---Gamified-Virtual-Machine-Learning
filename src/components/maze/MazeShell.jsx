@@ -107,7 +107,7 @@ function MazeNav() {
   ]
 
   return (
-    <header className="mz-nav">
+    <header className="mz-nav mz-nav-student">
       <div className="mz-container mz-nav-inner">
         <Link to="/student" className="mz-brand">
           <PacLogo className="mz-logo" />
@@ -126,6 +126,9 @@ function MazeNav() {
           </Link>
           <Link to="/student/dashboard" className="mz-link">
             Dashboard
+          </Link>
+          <Link to="/student/classrooms" className="mz-link">
+            Classrooms
           </Link>
         </nav>
 
