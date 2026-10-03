@@ -51,6 +51,34 @@
   }
 }
 
+/* The student bar (four links beside the XP chips) runs out of room sooner than the faculty bar. */
+@media (width < 1400px) {
+  .mz-nav-student .mz-nav-inner {
+    flex-wrap: wrap;
+    padding-block: 12px;
+  }
+
+  .mz-nav-student .mz-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding-top: 8px;
+    border-top: 1px solid var(--mz-line-soft);
+  }
+}
+
+/* Phones: the links wrap instead of overflowing. */
+@media (width < 520px) {
+  .mz-links {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .mz-link {
+    padding: 0 10px;
+  }
+}
+
 /* ---------- Shared ---------- */
 
 .hm-page {

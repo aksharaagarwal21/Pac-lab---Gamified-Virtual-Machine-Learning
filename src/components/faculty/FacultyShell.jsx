@@ -102,6 +102,9 @@ export function FacultyShell({ children }) {
             <Link to="/faculty" activeOptions={{ exact: true }} className="mz-link">
               Classes
             </Link>
+            <Link to="/faculty/classrooms" className="mz-link">
+              Classrooms
+            </Link>
           </nav>
 
           <div className="mz-stats">

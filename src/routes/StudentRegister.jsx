@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { CLASSES, saveClass } from '../data/classes.js'
 import { normalizeRegistration, registrationErrors, RULES } from '../lib/registration.js'
 import { studentFetch } from '../lib/studentApi.js'
@@ -35,6 +35,9 @@ const HINTS = { studentId: true, password: true, classCode: true }
 
 export default function StudentRegister() {
   const navigate = useNavigate()
+  // Set when the student came from a classroom invite link: their class is that classroom's section.
+  const { join } = useSearch({ strict: false })
+  const [joining, setJoining] = useState(null)
   const [values, setValues] = useState(EMPTY)
   const [touched, setTouched] = useState({})
   const [classes, setClasses] = useState(null)
@@ -50,6 +53,16 @@ export default function StudentRegister() {
       .then(({ classes: list }) => setClasses(list))
       .catch((fetchError) => setClassError(fetchError.message))
   }, [])
+
+  useEffect(() => {
+    if (!join) return
+    studentFetch(`/join/${join}`)
+      .then(({ classroom }) => {
+        setJoining(classroom)
+        setValues((current) => (current.classCode ? current : { ...current, classCode: classroom.section }))
+      })
+      .catch(() => {})
+  }, [join])
 
   const form = normalizeRegistration(values)
   const errors = registrationErrors(form)
@@ -89,7 +102,7 @@ export default function StudentRegister() {
       if (CLASSES.includes(student.className)) saveClass(student.id, student.className)
       sfx.coin()
       say(`Welcome to the maze, ${form.firstName}.`)
-      setTimeout(() => navigate({ to: '/student' }), 900)
+      setTimeout(() => navigate(join ? { to: '/join/$code', params: { code: join } } : { to: '/student' }), 900)
     } catch (registerError) {
       setSubmitting(false)
       setError(registerError.message || 'Registration failed.')
@@ -113,6 +126,7 @@ export default function StudentRegister() {
             <div>
               <h1 className="auth-title">NEW PLAYER</h1>
               <p className="auth-subtitle">CREATE YOUR STUDENT ACCOUNT</p>
+              {joining && <p className="auth-subtitle cr-joining">THEN JOIN: {joining.name.toUpperCase()}</p>}
             </div>
           </div>
 
@@ -166,7 +180,9 @@ export default function StudentRegister() {
           </form>
 
           <div className="auth-links">
-            <Link to="/login/student">HAVE AN ACCOUNT? SIGN IN</Link>
+            <Link to="/login/student" search={join ? { join } : {}}>
+              HAVE AN ACCOUNT? SIGN IN
+            </Link>
             <Link to="/">BACK TO TITLE</Link>
           </div>
         </div>

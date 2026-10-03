@@ -1,10 +1,11 @@
-// PAC-LAB API: student and faculty sign-in, saved student progress, and class, student and
-// leaderboard data from MySQL. The app is shared by the local server (server/index.js) and the
+// PAC-LAB API: student and faculty sign-in, saved student progress, classrooms, and class, student
+// and leaderboard data from MySQL. The app is shared by the local server (server/index.js) and the
 // Vercel serverless function (api/index.js).
 
 import 'dotenv/config'
 import express from 'express'
 import { createSession, endSession, hashPassword, readSession, verifyPassword } from './auth.js'
+import { classroomPreview, facultyClassrooms, studentClassrooms } from './classrooms.js'
 import { pool } from './db.js'
 import { normalizeRegistration, registrationError } from '../src/lib/registration.js'
 import { loadState, saveState } from './studentSync.js'
@@ -114,6 +115,9 @@ app.post('/api/student/register', route(async (req, res) => {
   })
 }))
 
+// What a classroom join link shows before the student signs in.
+app.get('/api/student/join/:code', classroomPreview)
+
 app.use('/api/student', requireSession('student'))
 
 app.get('/api/student/state', route(async (req, res) => {
@@ -133,6 +137,9 @@ app.post('/api/student/logout', (req, res) => {
   endSession(req.token)
   res.json({ ok: true })
 })
+
+// Classrooms the student joined, and joining or leaving one (server/classrooms.js).
+app.use('/api/student', studentClassrooms)
 
 // ---------- faculty: shared queries ----------
 
@@ -229,6 +236,9 @@ app.post('/api/faculty/logout', (req, res) => {
   endSession(req.token)
   res.json({ ok: true })
 })
+
+// Classrooms the teacher opened for their sections, with invites and rosters (server/classrooms.js).
+app.use('/api/faculty/classrooms', facultyClassrooms)
 
 // ---------- faculty: overview of every class ----------
 

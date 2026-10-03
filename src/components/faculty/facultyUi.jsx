@@ -103,3 +103,18 @@ export function LoadState({ error, what }) {
     </div>
   )
 }
+
+// A labelled form control; the hint or error below it has the id `${id}-note` for aria-describedby.
+export function Field({ id, label, error, hint, children }) {
+  return (
+    <div className={`cr-field${error ? ' is-invalid' : ''}`}>
+      <label htmlFor={id}>{label}</label>
+      {children}
+      {(error || hint) && (
+        <small id={`${id}-note`} className={error ? 'cr-field-error' : 'cr-field-hint'}>
+          {error ?? hint}
+        </small>
+      )}
+    </div>
+  )
+}

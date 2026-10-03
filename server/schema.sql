@@ -3,7 +3,7 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP VIEW IF EXISTS v_student_summary;
-DROP TABLE IF EXISTS student_state, activity_log, simulation_runs, quiz_attempts, student_badges, experiment_progress, badges, students, classes, faculty, experiments, departments;
+DROP TABLE IF EXISTS classroom_invites, classroom_members, classrooms, student_state, activity_log, simulation_runs, quiz_attempts, student_badges, experiment_progress, badges, students, classes, faculty, experiments, departments;
 SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE departments (
@@ -138,6 +138,41 @@ CREATE TABLE student_state (
   state JSON NOT NULL,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_state_student FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
+);
+
+-- Classrooms a teacher opens for one section (one per teacher and section). Students join with the
+-- join code or link: the section's students, plus anyone whose email address the teacher invited.
+CREATE TABLE classrooms (
+  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  join_code CHAR(7) NOT NULL UNIQUE,
+  name VARCHAR(80) NOT NULL,
+  description VARCHAR(300) NOT NULL DEFAULT '',
+  class_id SMALLINT UNSIGNED NOT NULL,
+  faculty_id VARCHAR(16) NOT NULL,
+  is_open BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_classroom_section (faculty_id, class_id),
+  CONSTRAINT fk_classroom_class FOREIGN KEY (class_id) REFERENCES classes (id),
+  CONSTRAINT fk_classroom_faculty FOREIGN KEY (faculty_id) REFERENCES faculty (id) ON DELETE CASCADE
+);
+
+CREATE TABLE classroom_members (
+  classroom_id INT UNSIGNED NOT NULL,
+  student_id VARCHAR(16) NOT NULL,
+  joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (classroom_id, student_id),
+  INDEX idx_member_student (student_id),
+  CONSTRAINT fk_member_classroom FOREIGN KEY (classroom_id) REFERENCES classrooms (id) ON DELETE CASCADE,
+  CONSTRAINT fk_member_student FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
+);
+
+-- Addresses a classroom invite went to (by email, so students who have not registered yet count too).
+CREATE TABLE classroom_invites (
+  classroom_id INT UNSIGNED NOT NULL,
+  email VARCHAR(120) NOT NULL,
+  invited_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (classroom_id, email),
+  CONSTRAINT fk_invite_classroom FOREIGN KEY (classroom_id) REFERENCES classrooms (id) ON DELETE CASCADE
 );
 
 -- Totals per student, used by the faculty dashboards and leaderboards.

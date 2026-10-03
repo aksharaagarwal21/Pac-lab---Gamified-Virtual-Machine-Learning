@@ -76,6 +76,27 @@ Some networks (college or office firewalls, antivirus "SSL scanning") block encr
 
 Every push to `main` now redeploys production automatically. Pushes to other branches get preview URLs.
 
+## 5. Classroom invite emails (optional)
+
+Teachers can email a classroom's join link to a whole section from **Faculty console → Classrooms**. To let PAC-LAB send these emails itself, add an SMTP account to the environment variables:
+
+| Name | Value |
+| --- | --- |
+| `SMTP_HOST` | e.g. `smtp.gmail.com` |
+| `SMTP_PORT` | `587` (or `465` for SSL) |
+| `SMTP_USER` | the sending account, e.g. `paclab.invites@gmail.com` |
+| `SMTP_PASS` | its password; for Gmail, an [app password](https://myaccount.google.com/apppasswords) (needs 2-step verification) |
+| `MAIL_FROM` | optional: a different sender address the account may send as |
+| `APP_URL` | optional: the site address for links in emails, e.g. `https://<your-project>.vercel.app` |
+
+Invites are sent from that account under the teacher's name, with the students in Bcc and replies going to the teacher. Without these settings, the classroom page prepares the invite instead and the teacher sends it from Gmail or their own email app.
+
+Notes:
+
+- Gmail allows about 500 recipients a day from a normal account (more with Google Workspace).
+- Sample students (`@students.paclab.test`) are never emailed; their domain is reserved for testing.
+- The classroom tables are created automatically the first time a classroom page is used, so an existing database needs no reset.
+
 ## Deploying from the command line instead
 
 ```bash
